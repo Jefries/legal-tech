@@ -31,6 +31,10 @@ export const Title = styled.h1`
   color: ${({ theme }) => theme.colors.text};
   margin-top: 3rem;
   margin-bottom: 2rem;
+
+  @media (max-width: 768px) {
+    font-size: 2rem;
+  }
 `
 
 export const SubTitle = styled.h1`
@@ -46,6 +50,10 @@ export const Caption = styled.p`
   text-align: center;
   color: ${({ theme }) => theme.colors.text};
   margin-top: 1rem;
+
+   @media (max-width: 767px) {
+    font-size: 0.85rem;
+  }
 `
 
 export const Form = styled.form`
@@ -288,6 +296,10 @@ export const HeroSection = styled.div`
   background-size: cover;
   background-position: bottom;
   background-repeat: no-repeat;
+
+  @media (max-width: 768px) {
+    min-height: 268px;
+  }
 `
 
 export const HeroWrapper = styled.div`
@@ -297,6 +309,11 @@ export const HeroWrapper = styled.div`
   width: 50%;
   height: auto;
   margin: auto 0;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    margin: auto 2rem;
+  }
 `
 
 export const SectionTitle = styled.div`
