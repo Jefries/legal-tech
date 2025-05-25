@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/authContext'
+import { AdminLoadingSpinner } from '@/components/AdminLoadingSpinner'
 
 export default function AdminPage() {
   const { isAuthenticated } = useAuth()
@@ -17,10 +18,6 @@ export default function AdminPage() {
     }
   }, [isAuthenticated, router])
 
-  // Show loading state during check
-  return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-      Loading...
-    </div>
-  )
+  // Show loading spinner during authentication check and redirect
+  return <AdminLoadingSpinner />
 }

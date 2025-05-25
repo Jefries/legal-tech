@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import styled from 'styled-components'
 import Link from 'next/link'
 import { Logo } from '@/public/assets/logo'
+import { AdminLoadingSpinner } from '@/components/AdminLoadingSpinner'
 
 const LayoutContainer = styled.div`
   display: flex;
@@ -154,7 +155,7 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { logout, isAuthenticated } = useAuth()
+  const { logout, isAuthenticated, isLoading } = useAuth()
   const pathname = usePathname()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
@@ -163,6 +164,18 @@ export default function AdminLayout({
     // Close sidebar on mobile when route changes
     setIsSidebarOpen(false)
   }, [pathname])
+
+  // Show loading state
+  if (isLoading) {
+    return <div style={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      alignItems: 'center', 
+      minHeight: '100vh' 
+    }}>
+      <AdminLoadingSpinner />
+    </div>
+  }
 
   // Return early for login page or unauthenticated state
   if (pathname?.includes('/login') || !isAuthenticated) {

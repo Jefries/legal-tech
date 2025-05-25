@@ -3,6 +3,7 @@
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import AdminLogin from './AdminLogin'
+import { AdminLoadingSpinner } from '@/components/AdminLoadingSpinner'
 
 export default function LoginPage() {
   const { status, data: session } = useSession()
@@ -16,7 +17,7 @@ export default function LoginPage() {
 
   // Show loading state while checking authentication
   if (status === 'loading') {
-    return <div>Loading...</div>
+    return <AdminLoadingSpinner />
   }
 
   // Only show login form if explicitly not authenticated

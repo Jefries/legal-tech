@@ -8,29 +8,39 @@ interface AuthContextType {
   isAuthenticated: boolean
   login: (username: string, password: string) => Promise<boolean>
   logout: () => Promise<void>
+  isLoading: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const { data: session } = useSession()
+  const [isLoading, setIsLoading] = useState(true)
+  const { data: session, status } = useSession()
   const router = useRouter()
   const pathname = usePathname()
 
   useEffect(() => {
-    setIsAuthenticated(!!session)
-  }, [session])
+    if (status === 'loading') {
+      setIsLoading(true)
+    } else {
+      setIsAuthenticated(!!session)
+      setIsLoading(false)
+    }
+  }, [session, status])
 
   // Handle authentication-based redirects only for admin routes
   useEffect(() => {
-    if (pathname?.startsWith('/admin')) {
+    if (!isLoading && pathname?.startsWith('/admin')) {
       if (isAuthenticated && pathname?.includes('/login')) {
         // If authenticated and on login page, redirect to dashboard
         router.replace('/admin/leads-dashboard')
+      } else if (!isAuthenticated && !pathname?.includes('/login')) {
+        // If not authenticated and not on login page, redirect to login
+        router.replace('/admin/login')
       }
     }
-  }, [isAuthenticated, pathname, router])
+  }, [isAuthenticated, pathname, router, isLoading])
 
   const login = async (username: string, password: string) => {
     try {
@@ -52,16 +62,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      await nextAuthSignOut({ redirect: false })
+      await nextAuthSignOut({ 
+        callbackUrl: '/admin/login',
+        redirect: true 
+      })
       setIsAuthenticated(false)
       sessionStorage.removeItem('adminSession')
+      router.replace('/admin/login')
     } catch (error) {
       console.error('Logout error:', error)
     }
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   )
