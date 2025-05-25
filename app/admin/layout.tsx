@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/authContext'
-import { useRouter, usePathname } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import styled from 'styled-components'
 import Link from 'next/link'
 import { Logo } from '@/public/assets/logo'
@@ -155,16 +155,9 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   const { logout, isAuthenticated } = useAuth()
-  const router = useRouter()
   const pathname = usePathname()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-
-  useEffect(() => {
-    if (!isAuthenticated && !pathname?.includes('/login')) {
-      router.replace('/admin/login')
-    }
-  }, [isAuthenticated, router, pathname])
 
   useEffect(() => {
     // Close sidebar on mobile when route changes
@@ -177,9 +170,7 @@ export default function AdminLayout({
   }
 
   const handleLogout = () => {
-    sessionStorage.removeItem('adminSession')
     logout()
-    router.replace('/admin/login')
   }
 
   return (

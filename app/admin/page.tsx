@@ -9,13 +9,11 @@ export default function AdminPage() {
   const router = useRouter()
 
   useEffect(() => {
-    // Check session and auth status
-    const session = sessionStorage.getItem('adminSession')
-    
-    if (session || isAuthenticated) {
-      router.push('/admin/leads-dashboard')
+    // Only redirect if we're sure about the authentication state
+    if (isAuthenticated) {
+      router.replace('/admin/leads-dashboard')
     } else {
-      router.push('/admin/login')
+      router.replace('/admin/login')
     }
   }, [isAuthenticated, router])
 
