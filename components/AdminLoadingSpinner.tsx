@@ -20,13 +20,15 @@ const Spinner = styled.div`
   border: 3px solid #f3f3f3;
   border-top: 3px solid #2563eb;
   border-radius: 50%;
-  animation: ${spin} 1s linear infinite;
+  animation: ${spin} 0.8s linear infinite;
 `
 
-export function AdminLoadingSpinner() {
+export const AdminLoadingSpinner = () => {
   return (
     <LoaderContainer>
       <Spinner />
     </LoaderContainer>
   )
 }
+
+export default AdminLoadingSpinner

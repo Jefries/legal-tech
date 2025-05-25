@@ -2,18 +2,21 @@
 
 import { Provider } from 'react-redux'
 import { store } from './store'
-import { AuthProvider } from './authContext'
+import { SessionProvider } from 'next-auth/react'
 import { ThemeProvider } from 'styled-components'
+import { AuthProvider } from './authContext'
 import theme from '@/styles/theme'
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <Provider store={store}>
-      <AuthProvider>
+      <SessionProvider>
         <ThemeProvider theme={theme}>
-          {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </ThemeProvider>
-      </AuthProvider>
+      </SessionProvider>
     </Provider>
   )
 }

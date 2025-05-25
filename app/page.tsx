@@ -59,25 +59,33 @@ export default function Home() {
 
     try {
       // Mock API call
+      // Create a stable timestamp for both id and submittedAt
+      const timestamp = Date.now()
+      const resumeUrl = typeof window !== 'undefined' ? URL.createObjectURL(values.resume) : ''
+      
       const lead: Lead = {
-        id: Date.now().toString(),
+        id: timestamp.toString(),
         firstName: values.firstName,
         lastName: values.lastName,
         email: values.email,
         linkedInProfile: values.linkedInProfile,
         country: values.country,
         visasOfInterest: values.visasOfInterest,
-        resumeUrl: URL.createObjectURL(values.resume),
+        resumeUrl,
         additionalInfo: values.additionalInfo,
         status: 'Pending',
-        submittedAt: new Date().toISOString(),
+        submittedAt: new Date(timestamp).toISOString(),
       }
 
       dispatch(addLead(lead))
       setSubmitSuccess(true)
       resetForm()
 
+      // Cleanup the object URL after a delay to ensure it's available for any immediate use
       setTimeout(() => {
+        if (resumeUrl) {
+          URL.revokeObjectURL(resumeUrl)
+        }
         setSubmitSuccess(false)
       }, 5000)
     } catch (error) {

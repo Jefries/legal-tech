@@ -1,31 +1,32 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '@/lib/authContext'
 import AdminDashboard from './AdminDashboard'
+import { AdminLoadingSpinner } from '@/components/AdminLoadingSpinner'
 
 export default function AdminDashboardPage() {
-  const { isAuthenticated } = useAuth()
+  const { status } = useSession()
   const router = useRouter()
+  const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
-    // Check if session exists
-    const session = sessionStorage.getItem('adminSession')
-    
-    // If no session and not authenticated, redirect to login
-    if (!session && !isAuthenticated) {
+    setIsClient(true)
+  }, [])
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
       router.push('/admin/login')
     }
-  }, [isAuthenticated, router])
+  }, [status, router])
 
-  // Show loading state during auth check
-  if (!isAuthenticated) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        Loading...
-      </div>
-    )
+  if (!isClient || status === 'loading') {
+    return <AdminLoadingSpinner />
+  }
+
+  if (status === 'unauthenticated') {
+    return null
   }
 
   return <AdminDashboard />

@@ -1,56 +1,64 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { useSession, signIn as nextAuthSignIn, signOut as nextAuthSignOut } from 'next-auth/react'
+import { useRouter, usePathname } from 'next/navigation'
 
 interface AuthContextType {
   isAuthenticated: boolean
   login: (username: string, password: string) => Promise<boolean>
-  logout: () => void
+  logout: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const { data: session } = useSession()
+  const router = useRouter()
+  const pathname = usePathname()
 
-  // Check session on initial load
   useEffect(() => {
-    const checkSession = () => {
-      const session = sessionStorage.getItem('adminSession')
-      if (session) {
-        setIsAuthenticated(true)
+    setIsAuthenticated(!!session)
+  }, [session])
+
+  // Handle authentication-based redirects only for admin routes
+  useEffect(() => {
+    if (pathname?.startsWith('/admin')) {
+      if (!isAuthenticated && !pathname?.includes('/login')) {
+        router.replace('/admin/login')
+      } else if (isAuthenticated && pathname?.includes('/login')) {
+        router.replace('/admin/leads-dashboard')
       }
     }
-
-    // Check session when component mounts
-    checkSession()
-
-    // Listen for storage events (for multi-tab support)
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'adminSession') {
-        setIsAuthenticated(!!e.newValue)
-      }
-    }
-    
-    window.addEventListener('storage', handleStorageChange)
-    return () => window.removeEventListener('storage', handleStorageChange)
-  }, [])
+  }, [isAuthenticated, pathname, router])
 
   const login = async (username: string, password: string) => {
-    // This is Just Mock authentication - in a real app, this would be an API call
-    if (username === 'admin' && password === '123') {
-      setIsAuthenticated(true)
-      // Store session
-      sessionStorage.setItem('adminSession', 'true')
-      return true
+    try {
+      const res = await nextAuthSignIn('credentials', {
+        username,
+        password,
+        redirect: false,
+      })
+      
+      if (res?.ok) {
+        setIsAuthenticated(true)
+        return true
+      }
+    } catch (error) {
+      console.error('Login error:', error)
     }
     return false
   }
 
-  const logout = () => {
-    setIsAuthenticated(false)
-    // Clear session
-    sessionStorage.removeItem('adminSession')
+  const logout = async () => {
+    try {
+      await nextAuthSignOut({ redirect: false })
+      setIsAuthenticated(false)
+      sessionStorage.removeItem('adminSession')
+    } catch (error) {
+      console.error('Logout error:', error)
+    }
   }
 
   return (

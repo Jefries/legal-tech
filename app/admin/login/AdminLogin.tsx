@@ -1,104 +1,53 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useAuth } from '@/lib/authContext'
-import styled from 'styled-components'
+import React, { useState, useEffect } from 'react'
 import { Logo } from '@/public/assets/logo'
-
-
-const Container = styled.div`
-  width: 100%;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`
-
-const LoginContainer = styled.div`
-  width: 400px;
-  margin: 4rem auto;
-  padding: 2rem;
-  background-color: white;
-  border-radius: 8px;
-  border: 1px solid #ededed;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-  svg {
-    display: flex;
-    margin: 0 auto 2rem;
-  }
-`
-
-const Title = styled.h1`
-  font-size: 1.5rem;
-  color: ${({ theme }) => theme.colors.text};
-  margin-bottom: 2rem;
-`
-
-const LoginForm = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`
-
-const LoginInput = styled.input`
-  padding: 0.75rem;
-  border: 1px solid #E0E0E0;
-  border-radius: 8px;
-`
-
-const LoginButton = styled.button`
-  padding: 0.75rem;
-  background-color: ${({ theme }) => theme.colors.primary};
-  font-size: 1rem;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  position: relative;
-  
-  &:disabled {
-    background-color: ${({ theme }) => theme.colors.secondary};
-    cursor: not-allowed;
-  }
-
-  &:not(:disabled):hover {
-    background-color: ${({ theme }) => theme.colors.primary}DD;
-  }
-`
-
-const ErrorMessage = styled.div`
-  color: ${({ theme }) => theme.colors.error};
-  margin-top: 0.5rem;
-`
+import { useAuth } from '@/lib/authContext'
+import {
+  Container,
+  LoginContainer,
+  Title,
+  LoginForm,
+  InputGroup,
+  LoginInput,
+  LoginButton,
+  ErrorMessage
+} from './AdminLogin.styled'
 
 export default function AdminLogin() {
-  const { login } = useAuth()
-  const router = useRouter()
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  const [isClient, setIsClient] = useState(false)
+  const [credentials, setCredentials] = useState({ username: '', password: '' })
   const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const { login } = useAuth()
+
+  // Only show the form after hydration is complete
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
     setError('')
-    
+
     try {
-      const success = await login(username, password)
-      if (success) {
-        // Redirect to admin-dashboard after successful login
-        router.push('/admin/leads-dashboard')
-      } else {
-        setError('Invalid credentials')
+      const success = await login(credentials.username, credentials.password)
+      if (!success) {
+        setError('Invalid username or password')
       }
-    } catch {
+    } catch (error) {
+      console.error('Login error:', error)
       setError('An error occurred during login')
-    } finally {
-      setIsLoading(false)
     }
+  }
+
+  // Don't render form until after hydration is complete
+  if (!isClient) {
+    return <Container>
+      <LoginContainer>
+        <Logo width={100} height={40}/>
+        <Title>Admin Login</Title>
+      </LoginContainer>
+    </Container>
   }
 
   return (
@@ -106,23 +55,31 @@ export default function AdminLogin() {
       <LoginContainer>
         <Logo width={100} height={40}/>
         <Title>Admin Login</Title>
-        {error && <ErrorMessage>{error}</ErrorMessage>}
         <LoginForm onSubmit={handleSubmit}>
-          <LoginInput
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-          <LoginInput
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <LoginButton type="submit" disabled={isLoading}>
-            {isLoading ? 'Logging in...' : 'Login'}
+          <InputGroup>
+            <label htmlFor="username">Username</label>
+            <LoginInput
+              type="text"
+              id="username"
+              value={credentials.username}
+              onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
+              required
+            />
+          </InputGroup>
+          <InputGroup>
+            <label htmlFor="password">Password</label>
+            <LoginInput
+              type="password"
+              id="password"
+              value={credentials.password}
+              onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+              required
+            />
+          </InputGroup>
+          <LoginButton type="submit">
+            Login
           </LoginButton>
+          {error && <ErrorMessage>{error}</ErrorMessage>}
         </LoginForm>
       </LoginContainer>
     </Container>
