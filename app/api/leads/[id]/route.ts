@@ -35,15 +35,24 @@ export async function PATCH(req: Request) {
     const body = await req.json()
     if (body.status && ['Pending', 'Reached Out'].includes(body.status)) {
       lead.status = body.status
-      await saveLeads(leads)
-      return NextResponse.json(lead)
+      try {
+        await saveLeads(leads)
+        return NextResponse.json(lead)
+      } catch (error) {
+        console.error('Failed to save leads:', error)
+        return NextResponse.json(
+          { error: 'Failed to save changes' },
+          { status: 500 }
+        )
+      }
     }
 
     return NextResponse.json(
       { error: 'Invalid status value' },
       { status: 400 }
     )
-  } catch {
+  } catch (error) {
+    console.error('PATCH error:', error)
     return NextResponse.json(
       { error: 'Invalid request body' },
       { status: 400 }

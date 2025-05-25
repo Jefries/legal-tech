@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { Logo } from '@/public/assets/logo'
 import { useAuth } from '@/lib/authContext'
+import { useSession } from 'next-auth/react'
 import {
   Container,
   LoginContainer,
@@ -16,9 +17,11 @@ import {
 
 export default function AdminLogin() {
   const [isClient, setIsClient] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const [credentials, setCredentials] = useState({ username: '', password: '' })
   const [error, setError] = useState('')
   const { login } = useAuth()
+  const { status } = useSession()
 
   // Only show the form after hydration is complete
   useEffect(() => {
@@ -28,6 +31,7 @@ export default function AdminLogin() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setIsLoading(true)
 
     try {
       const success = await login(credentials.username, credentials.password)
@@ -37,11 +41,18 @@ export default function AdminLogin() {
     } catch (error) {
       console.error('Login error:', error)
       setError('An error occurred during login')
+    } finally {
+      setIsLoading(false)
     }
   }
 
+  // Check for authenticated status
+  if (status === 'authenticated') {
+    return null // Let the middleware handle the redirect
+  }
+
   // Don't render form until after hydration is complete
-  if (!isClient) {
+  if (!isClient || status === 'loading') {
     return <Container>
       <LoginContainer>
         <Logo width={100} height={40}/>
@@ -63,6 +74,7 @@ export default function AdminLogin() {
               id="username"
               value={credentials.username}
               onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
+              disabled={isLoading}
               required
             />
           </InputGroup>
@@ -73,11 +85,12 @@ export default function AdminLogin() {
               id="password"
               value={credentials.password}
               onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+              disabled={isLoading}
               required
             />
           </InputGroup>
-          <LoginButton type="submit">
-            Login
+          <LoginButton type="submit" disabled={isLoading}>
+            {isLoading ? 'Logging in...' : 'Login'}
           </LoginButton>
           {error && <ErrorMessage>{error}</ErrorMessage>}
         </LoginForm>

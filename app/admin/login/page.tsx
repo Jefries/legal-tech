@@ -1,24 +1,29 @@
 'use client'
 
-import { useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import AdminLogin from './AdminLogin'
 
 export default function LoginPage() {
-  const { status } = useSession()
+  const { status, data: session } = useSession()
   const router = useRouter()
 
-  // Use useEffect for navigation
-  useEffect(() => {
-    if (status === 'authenticated') {
-      router.push('/admin/leads-dashboard')
-    }
-  }, [status, router])
-
-  if (status === 'authenticated') {
+  // Immediately redirect if session exists
+  if (session?.user) {
+    router.replace('/admin/leads-dashboard')
     return null
   }
 
-  return <AdminLogin />
+  // Show loading state while checking authentication
+  if (status === 'loading') {
+    return <div>Loading...</div>
+  }
+
+  // Only show login form if explicitly not authenticated
+  if (status === 'unauthenticated') {
+    return <AdminLogin />
+  }
+
+  // Return null for any other state
+  return null
 }

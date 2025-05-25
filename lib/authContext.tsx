@@ -25,9 +25,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Handle authentication-based redirects only for admin routes
   useEffect(() => {
     if (pathname?.startsWith('/admin')) {
-      if (!isAuthenticated && !pathname?.includes('/login')) {
-        router.replace('/admin/login')
-      } else if (isAuthenticated && pathname?.includes('/login')) {
+      if (isAuthenticated && pathname?.includes('/login')) {
+        // If authenticated and on login page, redirect to dashboard
         router.replace('/admin/leads-dashboard')
       }
     }
