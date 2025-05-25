@@ -1,3 +1,8 @@
+## Live Demo
+**[GO TO WEBSITE](https://legal-tech-psi.vercel.app/)**
+
+<br>
+
 ## How to Started Locally
 
 > **First, clone this repo:**
