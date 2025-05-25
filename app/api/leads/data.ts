@@ -21,7 +21,7 @@ export async function getLeads(): Promise<Lead[]> {
   try {
     const fileContent = await fs.readFile(leadsFilePath, 'utf-8')
     return JSON.parse(fileContent)
-  } catch (error) {
+  } catch {
     return []
   }
 }

@@ -93,10 +93,10 @@ export default function AdminDashboard() {
   const sortedLeads = [...filteredLeads].sort((a, b) => {
     if (!sortConfig.key) return 0
 
-    let aValue: any = sortConfig.key === 'firstName' 
+    let aValue: string | number = sortConfig.key === 'firstName'
       ? `${a.firstName} ${a.lastName}`
       : a[sortConfig.key]
-    let bValue: any = sortConfig.key === 'firstName'
+    let bValue: string | number = sortConfig.key === 'firstName'
       ? `${b.firstName} ${b.lastName}`
       : b[sortConfig.key]
 

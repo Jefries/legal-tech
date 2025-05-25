@@ -2,11 +2,10 @@ import { NextResponse } from 'next/server'
 import { Lead, getLeads, saveLeads } from '../data'
 
 // GET /api/leads/[id] - Get a specific lead
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  const { id } = params
+export async function GET(req: Request) {
+  const url = new URL(req.url)
+  const id = url.pathname.split('/').pop()
+  
   const leads = await getLeads()
   const lead = leads.find((l: Lead) => l.id === id)
   if (!lead) {
@@ -19,12 +18,11 @@ export async function GET(
 }
 
 // PATCH /api/leads/[id] - Update a lead's status
-export async function PATCH(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(req: Request) {
   try {
-    const { id } = params
+    const url = new URL(req.url)
+    const id = url.pathname.split('/').pop()
+    
     const leads = await getLeads()
     const lead = leads.find((l: Lead) => l.id === id)
     if (!lead) {
@@ -45,7 +43,7 @@ export async function PATCH(
       { error: 'Invalid status value' },
       { status: 400 }
     )
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Invalid request body' },
       { status: 400 }
@@ -54,16 +52,15 @@ export async function PATCH(
 }
 
 // DELETE /api/leads/[id] - Delete a lead
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  const { id } = params
+export async function DELETE(req: Request) {
+  const url = new URL(req.url)
+  const id = url.pathname.split('/').pop()
+  
   const leads = await getLeads()
   const index = leads.findIndex((l: Lead) => l.id === id)
   if (index === -1) {
     return NextResponse.json(
-      { error: 'Lead not found' },
+      { _error: 'Lead not found' },
       { status: 404 }
     )
   }

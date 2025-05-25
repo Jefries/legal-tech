@@ -6,22 +6,21 @@ import {
   FormGroup,
   Input,
   TextArea,
-  Select, /* Re-import Select */
+  Select,
   Button,
   ErrorMessage,
-  SuccessMessage,
   SubTitle,
   Caption,
   SectionTitle,
-  SelectWrapper, /* Re-import SelectWrapper */
-  SelectIcon, /* Re-import SelectIcon */
-  CheckboxContainer, /* Import CheckboxContainer */
-  CheckboxLabel, /* Import CheckboxLabel */
-  CheckboxInput, /* Import CheckboxInput */
-  CustomFileInput, /* Import CustomFileInput */
+  SelectWrapper,
+  SelectIcon, 
+  CheckboxContainer, 
+  CheckboxLabel,
+  CheckboxInput, 
+  CustomFileInput, 
 } from '@/components/GlobalStyles';
 import Image from 'next/image';
-import { ChevronDown, Upload } from 'lucide-react'; /* Re-import ChevronDown icon */
+import { ChevronDown, Upload } from 'lucide-react'; 
 
 const VISA_OPTIONS = [
   `O-1 Visa`,
